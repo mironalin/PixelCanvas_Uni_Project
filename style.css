@@ -5,8 +5,10 @@
 }
 
 body {
+    padding: 0;
     display: flex;
     justify-content: center;
+    overflow: hidden;
 }
 
 .toolbar {
@@ -38,7 +40,15 @@ body {
     background-color: #f0f0f0;
 }
 
-.my-class{
-    margin: 0;
-    padding: 0;
+.btn.active {
+    background-color: #6965db;
+    border: none;
+}
+
+.canvas--container {
+    width: 100%;
+}
+
+.white-outline {
+    filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(288deg) brightness(102%) contrast(102%);
 }
