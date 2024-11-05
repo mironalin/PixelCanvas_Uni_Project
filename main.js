@@ -90,6 +90,7 @@ class DrawingBoard {
 
     [this.redSlider, this.greenSlider, this.blueSlider].forEach((slider) => {
       slider.addEventListener("input", () => this.updateFromSliders());
+      slider.addEventListener("change", () => this.addToRecentColors(this.color));
     });
   }
 
@@ -97,7 +98,6 @@ class DrawingBoard {
     this.color = color;
     this.hexInput.value = color;
     this.updateSliders(color);
-    this.addToRecentColors(color);
   }
 
   updateFromHexInput(hex) {
@@ -117,7 +117,6 @@ class DrawingBoard {
     this.mainPicker.value = color;
     this.hexInput.value = color;
     this.updateSliderLabels();
-    this.addToRecentColors(color);
   }
 
   updateSliders(hex) {
