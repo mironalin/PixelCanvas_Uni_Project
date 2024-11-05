@@ -12,6 +12,7 @@ class DrawingBoard {
     this.redoStack = [];
     this.maxStates = 50;
     this.isDarkMode = false;
+
     this.recentColors = JSON.parse(localStorage.getItem("recentColors")) || [
       "#000000",
       "#ffffff",
@@ -22,6 +23,7 @@ class DrawingBoard {
 
     this.initializeCanvas();
     this.setupEventListeners();
+    this.initializeColorPicker();
     this.saveState();
   }
 
@@ -34,6 +36,171 @@ class DrawingBoard {
   resizeCanvas() {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
+  }
+
+  initializeColorPicker() {
+    const picker = document.querySelector(".color-picker");
+    picker.innerHTML = `
+      <div class="card" style="width: 12rem;">
+        <div class="current-color">
+          <input type="color" id="mainColorPicker" value="#000000" class="form-control form-control-color">
+          <input type="text" id="hexColorInput" value="#000000" class="form-control" placeholder="#000000">
+        </div>
+        <div class="color-sliders">
+          <div class="slider-group">
+            <label class="form-label">
+              R: 
+              <span id="redValue">0</span>
+            </label>
+            <input type="range" id="redSlider" class="form-range" min="0" max="255" value="0">
+          </div>
+          <div class="slider-group">
+            <label class="form-label">
+              G:
+              <span id="greenValue">0</span>
+            </label>
+            <input type="range" id="greenSlider" class="form-range" min="0" max="255" value="0">
+          </div>
+          <div class="slider-group">
+            <label class="form-label">
+              B:
+              <span id="blueValue">0</span>
+            </label>
+            <input type="range" id="blueSlider" class="form-range" min="0" max="255" value="0">
+          </div>
+        </div>
+        <div class="recent-colors"></div>
+      </div>
+    `;
+
+    this.mainPicker = document.getElementById("mainColorPicker");
+    this.hexInput = document.getElementById("hexColorInput");
+    this.redSlider = document.getElementById("redSlider");
+    this.greenSlider = document.getElementById("greenSlider");
+    this.blueSlider = document.getElementById("blueSlider");
+
+    window.addEventListener("resize", () => this.positionColorPicker());
+    this.setupColorPickerEvents();
+    this.updateRecentColors();
+  }
+
+  setupColorPickerEvents() {
+    this.mainPicker.addEventListener("input", (e) => this.updateFromMainPicker(e.target.value));
+    this.hexInput.addEventListener("input", (e) => this.updateFromHexInput(e.target.value));
+
+    [this.redSlider, this.greenSlider, this.blueSlider].forEach((slider) => {
+      slider.addEventListener("input", () => this.updateFromSliders());
+    });
+  }
+
+  updateFromMainPicker(color) {
+    this.color = color;
+    this.hexInput.value = color;
+    this.updateSliders(color);
+    this.addToRecentColors(color);
+  }
+
+  updateFromHexInput(hex) {
+    if (/^#[0-9A-F]{6}$/i.test(hex)) {
+      this.color = hex;
+      this.mainPicker.value = hex;
+      this.updateSliders(hex);
+      this.addToRecentColors(hex);
+    }
+  }
+
+  updateFromSliders() {
+    const color = `#${this.componentToHex(this.redSlider.value)}${this.componentToHex(
+      this.greenSlider.value
+    )}${this.componentToHex(this.blueSlider.value)}`;
+    this.color = color;
+    this.mainPicker.value = color;
+    this.hexInput.value = color;
+    this.updateSliderLabels();
+    this.addToRecentColors(color);
+  }
+
+  updateSliders(hex) {
+    const rgb = this.hexToRgb(hex);
+    this.redSlider.value = rgb.r;
+    this.greenSlider.value = rgb.g;
+    this.blueSlider.value = rgb.b;
+    this.updateSliderLabels();
+  }
+
+  updateSliderLabels() {
+    document.getElementById("redValue").textContent = this.redSlider.value;
+    document.getElementById("greenValue").textContent = this.greenSlider.value;
+    document.getElementById("blueValue").textContent = this.blueSlider.value;
+  }
+
+  componentToHex(c) {
+    const hex = parseInt(c).toString(16);
+    return hex.length === 1 ? "0" + hex : hex;
+  }
+
+  hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16),
+        }
+      : null;
+  }
+
+  addToRecentColors(color) {
+    const index = this.recentColors.indexOf(color);
+    if (index !== -1) {
+      this.recentColors.splice(index, 1);
+    }
+    this.recentColors.unshift(color);
+    this.recentColors = this.recentColors.slice(0, 4);
+    localStorage.setItem("recentColors", JSON.stringify(this.recentColors));
+    this.updateRecentColors();
+  }
+
+  updateRecentColors() {
+    const container = document.querySelector(".recent-colors");
+    container.innerHTML = this.recentColors
+      .map(
+        (color) => `
+        <button class="color-swatch btn" 
+                style="background-color: ${color}"
+                data-color="${color}"
+                title="${color}">
+        </button>
+      `
+      )
+      .join("");
+
+    container.querySelectorAll(".color-swatch").forEach((swatch) => {
+      swatch.addEventListener("click", () => {
+        const color = swatch.dataset.color;
+        this.updateFromMainPicker(color);
+        this.mainPicker.value = color;
+      });
+    });
+  }
+
+  positionColorPicker() {
+    const picker = document.querySelector(".color-picker");
+    const button = document.querySelector('[data-tool="palette"]');
+
+    if (button && picker.classList.contains("visible")) {
+      const buttonRect = button.getBoundingClientRect();
+      picker.style.position = "absolute";
+      picker.style.left = `${buttonRect.left - 76}px`;
+      picker.style.top = `${buttonRect.bottom + window.scrollY + 15}px`;
+    }
+  }
+
+  toggleColorPicker() {
+    const picker = document.querySelector(".color-picker");
+    picker.classList.toggle("visible");
+
+    this.positionColorPicker();
   }
 
   handleButtonClick(button) {
@@ -50,6 +217,8 @@ class DrawingBoard {
         this.clearCanvas();
         return;
       case "palette":
+        console.log("palette");
+        this.toggleColorPicker();
         return;
       case "download":
         this.downloadCanvas();
@@ -238,5 +407,31 @@ class DrawingBoard {
     this.ctx.closePath();
   }
 }
+
+//prevent zooming
+document.addEventListener("keydown", function (e) {
+  if (
+    e.ctrlKey &&
+    (e.keyCode == "61" ||
+      e.keyCode == "107" ||
+      e.keyCode == "173" ||
+      e.keyCode == "109" ||
+      e.keyCode == "187" ||
+      e.keyCode == "189")
+  ) {
+    e.preventDefault();
+  }
+});
+document.addEventListener(
+  "wheel",
+  function (e) {
+    if (e.ctrlKey) {
+      e.preventDefault();
+    }
+  },
+  {
+    passive: false,
+  }
+);
 
 new DrawingBoard();
