@@ -21,9 +21,12 @@ class DrawingBoard {
       "#0000ff",
     ];
 
+    this.backgroundColor = "#ffffff";
+
     this.initializeCanvas();
     this.setupEventListeners();
     this.initializeColorPicker();
+    this.initializeBrushSizeControl();
     this.saveState();
   }
 
@@ -36,6 +39,22 @@ class DrawingBoard {
   resizeCanvas() {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
+  }
+
+  initializeBrushSizeControl() {
+    const control = document.querySelector(".brush-size-control");
+
+    control.innerHTML = `
+      <div class="card" style="width: 12rem">
+        <label for="brushSize">Brush Size: <span id="brushSizeValue">2</span>px</label>
+        <input type="range" id="brushSize" class="form-range" min="1" max="50" value="2" />
+      </div>
+      `;
+
+    this.brushSizeValue = document.getElementById("brushSizeValue");
+    this.brushSizeSlider = document.getElementById("brushSize");
+
+    this.setupBrushSizeControlEvents();
   }
 
   initializeColorPicker() {
@@ -93,6 +112,13 @@ class DrawingBoard {
     [this.redSlider, this.greenSlider, this.blueSlider].forEach((slider) => {
       slider.addEventListener("input", () => this.updateFromSliders());
       slider.addEventListener("change", () => this.addToRecentColors(this.color));
+    });
+  }
+
+  setupBrushSizeControlEvents() {
+    this.brushSizeSlider.addEventListener("input", (e) => {
+      this.brushSize = parseInt(e.target.value);
+      this.brushSizeValue.textContent = this.brushSize;
     });
   }
 
@@ -196,11 +222,30 @@ class DrawingBoard {
     }
   }
 
+  positionBrushSizeControl() {
+    const control = document.querySelector(".brush-size-control");
+    const button = document.querySelector('[data-tool="brush-size"]');
+
+    if (button && control.classList.contains("visible")) {
+      const buttonRect = button.getBoundingClientRect();
+      control.style.position = "absolute";
+      control.style.left = `${buttonRect.left - 76}px`;
+      control.style.top = `${buttonRect.bottom + window.scrollY + 15}px`;
+    }
+  }
+
   toggleColorPicker() {
     const picker = document.querySelector(".color-picker");
     picker.classList.toggle("visible");
-
+    document.querySelector(".brush-size-control").classList.remove("visible");
     this.positionColorPicker();
+  }
+
+  toggleBrushSizeControl() {
+    const control = document.querySelector(".brush-size-control");
+    control.classList.toggle("visible");
+    document.querySelector(".color-picker").classList.remove("visible");
+    this.positionBrushSizeControl();
   }
 
   handleButtonClick(button) {
@@ -219,6 +264,10 @@ class DrawingBoard {
       case "palette":
         console.log("palette");
         this.toggleColorPicker();
+        return;
+      case "brush-size":
+        console.log("brush");
+        this.toggleBrushSizeControl();
         return;
       case "download":
         this.downloadCanvas();
@@ -405,6 +454,27 @@ class DrawingBoard {
     }
 
     this.ctx.closePath();
+  }
+
+  downloadCanvas() {
+    const fileName = prompt("Enter a name for your drawing:", "drawing");
+    if (!fileName) return;
+
+    const tempCanvas = document.createElement("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
+
+    tempCanvas.width = this.canvas.width;
+    tempCanvas.height = this.canvas.height;
+
+    tempCtx.fillStyle = this.backgroundColor;
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+    tempCtx.drawImage(this.canvas, 0, 0);
+
+    const link = document.createElement("a");
+    link.href = tempCanvas.toDataURL("image/png");
+    link.download = fileName.endsWith(".png") ? fileName : `${fileName}.png`; // Ensure .png extension
+    link.click();
   }
 }
 
