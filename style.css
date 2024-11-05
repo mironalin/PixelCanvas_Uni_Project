@@ -1,125 +1,256 @@
+:root {
+  --bg-color: #fff;
+  --text-color: #1c1c1c;
+  --toolbar-bg: #ffffff;
+  --toolbar-border: #e9ecef;
+  --button-bg: #f8f9fa;
+  --button-hover: #e9ecef;
+  --button-active: #6965db;
+  --button-text: #1c1c1c;
+  --canvas-bg: #ffffff;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --gradient-start: #6965db;
+  --gradient-end: #8b5cf6;
+}
+
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    overflow: hidden;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  font-family: "Inter", sans-serif;
 }
 
 .toolbar {
-    position: fixed;
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
-    /* border: solid 1.5px #bebaba; */
-    margin-top: 0.75rem;
-    padding: 0.25rem;
-    border-radius: 0.45rem;
-    box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
+  position: fixed;
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  /* border: solid 1.5px #bebaba; */
+  margin-top: 0.75rem;
+  padding: 0.25rem;
+  border-radius: 0.45rem;
+  box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
 }
 
 .btn {
-    width: 2.5rem;
-    height: 2.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.71rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.71rem;
 }
 
 .btn > img {
-    width: 1rem;
+  width: 1rem;
 }
 
 .btn:hover {
-    background-color: #f0f0f0;
+  background-color: #f0f0f0;
 }
 
 .btn.active {
-    background-color: #6965db;
-    border: none;
+  background-color: #6965db;
+  border: none;
 }
 
 .canvas--container {
-    margin-top: 3.5rem;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  margin-top: 3.5rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .white-outline {
-    filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(288deg) brightness(102%) contrast(102%);
+  filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(288deg) brightness(102%) contrast(102%);
 }
 
 .color-picker {
-    display: none;
-    border-radius: 0.45rem;
-    box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
-    overflow: hidden;
+  display: none;
+  border-radius: 0.45rem;
+  box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
+  overflow: hidden;
 }
 
 .card {
-    padding: 1rem;
-    display: flex;
-    gap: 1rem;
+  padding: 1rem;
+  display: flex;
+  gap: 1rem;
 }
 
 .color-picker.visible {
-    display: block;
+  display: block;
 }
 
 .current-color {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 #mainColorPicker {
-    width: 2.5rem;
-    height: 2.5rem;
-    padding: 0;
-    border: none;
-    border-radius: 0.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 0.5rem;
 }
 
 #hexColorInput {
-    flex: 1;
-    font-family: monospace;
+  flex: 1;
+  font-family: monospace;
 }
 
 .recent-colors {
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
 }
 
 .color-swatch {
-    width: 30px;
-    height: 30px;
-    border: 1px solid #f0f0f0;
-    overflow: hidden;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: transform 0.2s;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #f0f0f0;
+  overflow: hidden;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.2s;
 }
 
 .color-swatch:hover {
-    transform: scale(1.1);
+  transform: scale(1.1);
 }
 
 .brush-size-control {
-    display: none;
-    border-radius: 0.45rem;
-    box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
-    overflow: hidden;
+  display: none;
+  border-radius: 0.45rem;
+  box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
+  overflow: hidden;
 }
 
 .brush-size-control.visible {
-    display: block;
+  display: block;
+}
+
+#landing {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+#landing.hidden {
+  display: none;
+}
+
+.landing-content {
+  max-width: 640px;
+  width: 100%;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -1px var(--shadow-color);
+}
+
+.landing-content > h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.landing-content > p {
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: var(--text-color);
+  opacity: 0.9;
+  margin-bottom: 2rem;
+}
+
+.landing-content > h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+}
+
+.landing-content > ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.landing-content > ul > li {
+  padding: 0.75rem;
+  background-color: var(--button-bg);
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+}
+
+.landing-content > ul > li:before {
+  content: "→";
+  color: var(--gradient-start);
+  font-weight: bold;
+}
+
+.landing-content > ul > li:hover {
+  transform: translateY(-2px);
+  background-color: var(--button-hover);
+  cursor: default;
+}
+
+.start-drawing {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: white;
+  background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.start-drawing:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.start-drawing:active {
+  transform: translateY(0);
+}
+
+.start-drawing:before {
+  content: "✏️";
+  font-size: 1.25rem;
 }

@@ -1,3 +1,17 @@
+class LandingPage {
+  constructor(onStart) {
+    this.landing = document.getElementById("landing");
+    this.startButton = this.landing.querySelector(".start-drawing");
+
+    this.startButton.addEventListener("click", () => {
+      this.landing.classList.add("hidden");
+      if (onStart) {
+        onStart();
+      }
+    });
+  }
+}
+
 class DrawingBoard {
   constructor() {
     this.canvas = document.getElementById("canvas");
@@ -23,11 +37,19 @@ class DrawingBoard {
 
     this.backgroundColor = "#ffffff";
 
-    this.initializeCanvas();
-    this.setupEventListeners();
-    this.initializeColorPicker();
-    this.initializeBrushSizeControl();
-    this.saveState();
+    this.landing = new LandingPage(() => {
+      this.initializeCanvas();
+      this.setupEventListeners();
+      this.initializeColorPicker();
+      this.initializeBrushSizeControl();
+      this.saveState();
+    });
+
+    // this.initializeCanvas();
+    // this.setupEventListeners();
+    // this.initializeColorPicker();
+    // this.initializeBrushSizeControl();
+    // this.saveState();
   }
 
   initializeCanvas() {
