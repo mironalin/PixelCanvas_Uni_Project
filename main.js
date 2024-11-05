@@ -35,8 +35,6 @@ class DrawingBoard {
       "#0000ff",
     ];
 
-    this.backgroundColor = "#ffffff";
-
     this.landing = new LandingPage(() => {
       this.initializeCanvas();
       this.setupEventListeners();
@@ -135,6 +133,43 @@ class DrawingBoard {
       slider.addEventListener("input", () => this.updateFromSliders());
       slider.addEventListener("change", () => this.addToRecentColors(this.color));
     });
+
+    document.querySelector(".theme-toggle").addEventListener("click", () => {
+      this.toggleTheme();
+    });
+  }
+
+  updateButtonIcons() {
+    const buttons = document.querySelectorAll(".btn img");
+    buttons.forEach((img) => {
+      const button = img.parentElement;
+      if (this.isDarkMode) {
+        img.classList.add("white-outline");
+      } else {
+        img.classList.toggle("white-outline", button.classList.contains("active"));
+      }
+    });
+  }
+
+  updateColorForTheme() {
+    const targetColor = this.isDarkMode ? "#ffffff" : "#000000";
+    if (this.color === (this.isDarkMode ? "#000000" : "#ffffff")) {
+      this.updateFromHexInput(targetColor);
+      this.addToRecentColors(targetColor);
+    }
+  }
+
+  toggleTheme() {
+    this.isDarkMode = !this.isDarkMode;
+    document.body.setAttribute("data-theme", this.isDarkMode ? "dark" : "light");
+
+    this.updateColorForTheme();
+    this.updateCanvasBackground();
+    this.updateButtonIcons();
+  }
+
+  updateCanvasBackground() {
+    this.canvas.style.backgroundColor = this.isDarkMode ? "#121212" : "#ffffff";
   }
 
   setupBrushSizeControlEvents() {
@@ -294,11 +329,17 @@ class DrawingBoard {
       case "download":
         this.downloadCanvas();
         return;
+      case "theme":
+        return;
       default:
         this.currentTool = tool;
         document.querySelectorAll(".btn").forEach((btn) => {
           btn.classList.toggle("active", btn.dataset.tool === tool);
-          btn.firstElementChild.classList.toggle("white-outline", btn.dataset.tool === tool);
+          if (btn.getElementsByTagName("img")[0]) {
+            btn
+              .getElementsByTagName("img")[0]
+              .classList.toggle("white-outline", this.isDarkMode || btn.dataset.tool === tool);
+          }
         });
     }
   }
@@ -488,7 +529,12 @@ class DrawingBoard {
     tempCanvas.width = this.canvas.width;
     tempCanvas.height = this.canvas.height;
 
-    tempCtx.fillStyle = this.backgroundColor;
+    if (this.isDarkMode) {
+      tempCtx.fillStyle = "#121212";
+    } else {
+      tempCtx.fillStyle = "#ffffff";
+    }
+
     tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
 
     tempCtx.drawImage(this.canvas, 0, 0);

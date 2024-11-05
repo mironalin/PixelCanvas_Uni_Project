@@ -13,6 +13,19 @@
   --gradient-end: #8b5cf6;
 }
 
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --text-color: #ffffff;
+  --toolbar-bg: #1e1e1e;
+  --toolbar-border: #2d2d2d;
+  --button-bg: #2d2d2d;
+  --button-hover: #3d3d3d;
+  --button-active: #6965db;
+  --button-text: #ffffff;
+  --canvas-bg: #121212;
+  --shadow-color: rgba(255, 255, 255, 0.1);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -25,6 +38,8 @@ body {
   justify-content: center;
   overflow: hidden;
   font-family: "Inter", sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 .toolbar {
@@ -36,7 +51,7 @@ body {
   margin-top: 0.75rem;
   padding: 0.25rem;
   border-radius: 0.45rem;
-  box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
+  box-shadow: var(--shadow-color) 0px 2px 5px 0px, var(--shadow-color) 0px 1px 1px 0px;
 }
 
 .btn {
@@ -46,6 +61,7 @@ body {
   align-items: center;
   justify-content: center;
   font-size: 0.71rem;
+  background-color: var(--button-bg);
 }
 
 .btn > img {
@@ -53,11 +69,11 @@ body {
 }
 
 .btn:hover {
-  background-color: #f0f0f0;
+  background-color: var(--button-hover);
 }
 
 .btn.active {
-  background-color: #6965db;
+  background-color: var(--button-active);
   border: none;
 }
 
@@ -76,7 +92,7 @@ body {
 .color-picker {
   display: none;
   border-radius: 0.45rem;
-  box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
+  box-shadow: var(--shadow-color) 0px 2px 5px 0px, var(--shadow-color) 0px 1px 1px 0px;
   overflow: hidden;
 }
 
@@ -84,6 +100,12 @@ body {
   padding: 1rem;
   display: flex;
   gap: 1rem;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.color-sliders {
+  color: var(--text-color);
 }
 
 .color-picker.visible {
@@ -100,13 +122,18 @@ body {
   width: 2.5rem;
   height: 2.5rem;
   padding: 0;
-  border: none;
+  overflow: hidden;
   border-radius: 0.5rem;
+
+  border: solid var(--toolbar-border) 1px;
 }
 
 #hexColorInput {
   flex: 1;
   font-family: monospace;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border: solid var(--toolbar-border) 1px;
 }
 
 .recent-colors {
@@ -116,9 +143,9 @@ body {
 }
 
 .color-swatch {
-  width: 30px;
-  height: 30px;
-  border: 1px solid #f0f0f0;
+  width: 33px;
+  height: 33px;
+  border: solid var(--toolbar-border) 1px;
   overflow: hidden;
   border-radius: 4px;
   cursor: pointer;
@@ -132,8 +159,9 @@ body {
 .brush-size-control {
   display: none;
   border-radius: 0.45rem;
-  box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
+  box-shadow: var(--shadow-color) 0px 2px 5px 0px, var(--shadow-color) 0px 1px 1px 0px;
   overflow: hidden;
+  background-color: var(--bg-color);
 }
 
 .brush-size-control.visible {
