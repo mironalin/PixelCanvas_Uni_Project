@@ -348,3 +348,11 @@ canvas {
   color: var(--text-color);
   z-index: 1000;
 }
+
+#zoom-controls.hidden {
+  display: none;
+}
+
+#zoom-controls.visible {
+  display: block;
+}

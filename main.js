@@ -2,9 +2,11 @@ class LandingPage {
   constructor(onStart) {
     this.landing = document.getElementById("landing");
     this.startButton = this.landing.querySelector(".start-drawing");
+    this.zoomControls = document.getElementById("zoom-controls");
 
     this.startButton.addEventListener("click", () => {
       this.landing.classList.add("hidden");
+      this.zoomControls.classList.add("visible");
       if (onStart) {
         onStart();
       }
@@ -77,7 +79,7 @@ class DrawingBoard {
   }
 
   updateZoomIndicator() {
-    const zoomLevel = document.getElementById("zoomLevel");
+    const zoomLevel = document.getElementById("zoom-level");
     if (zoomLevel) {
       zoomLevel.textContent = `${Math.round(this.zoom * 100)}%`;
     }
