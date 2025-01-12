@@ -46,6 +46,13 @@ class DrawingBoard {
     this.selectedImage = null;
     this.editMode = false;
 
+    this.zoom = 1;
+    this.isPanning = false;
+    this.lastX = 0;
+    this.lastY = 0;
+    this.offsetX = 0;
+    this.offsetY = 0;
+
     this.createDropzoneOverlay();
 
     this.landing = new LandingPage(() => {
@@ -69,8 +76,16 @@ class DrawingBoard {
     document.body.appendChild(this.dropzoneOverlay);
   }
 
+  updateZoomIndicator() {
+    const zoomLevel = document.getElementById("zoomLevel");
+    if (zoomLevel) {
+      zoomLevel.textContent = `${Math.round(this.zoom * 100)}%`;
+    }
+  }
+
   initializeCanvas() {
     this.resizeCanvas();
+    this.updateZoomIndicator();
     this.ctx.lineCap = "round";
     this.ctx.lineJoin = "round";
   }
@@ -87,33 +102,9 @@ class DrawingBoard {
     this.canvas.addEventListener("mouseup", this.handleMouseUp.bind(this));
     this.canvas.addEventListener("mouseout", this.handleMouseLeave.bind(this));
     this.canvas.addEventListener("dblclick", this.handleDoubleClick.bind(this));
-    document.addEventListener("keydown", this.handleImageDelete.bind(this));
-
-    // prevent zooming
-    document.addEventListener("keydown", (e) => {
-      if (
-        e.ctrlKey &&
-        (e.keyCode == "61" ||
-          e.keyCode == "107" ||
-          e.keyCode == "173" ||
-          e.keyCode == "109" ||
-          e.keyCode == "187" ||
-          e.keyCode == "189")
-      ) {
-        e.preventDefault();
-      }
-    });
-    document.addEventListener(
-      "wheel",
-      (e) => {
-        if (e.ctrlKey) {
-          e.preventDefault();
-        }
-      },
-      {
-        passive: false,
-      }
-    );
+    this.canvas.addEventListener("wheel", this.handleWheel.bind(this));
+    document.addEventListener("keydown", this.handleKeyDown.bind(this));
+    document.addEventListener("keyup", this.handleKeyUp.bind(this));
 
     document.querySelectorAll(".btn").forEach((btn) => {
       btn.addEventListener("click", () => this.handleButtonClick(btn));
@@ -121,6 +112,13 @@ class DrawingBoard {
   }
 
   handleMouseDown(event) {
+    if (this.isPanning) {
+      this.lastX = event.clientX;
+      this.lastY = event.clientY;
+      this.canvas.style.cursor = "grabbing";
+      return;
+    }
+
     if (this.editMode) {
       this.handleEditModeMouseDown(event);
       return;
@@ -129,6 +127,17 @@ class DrawingBoard {
   }
 
   handleMouseMove(event) {
+    if (this.isPanning && this.lastX && this.lastY) {
+      const dx = event.clientX - this.lastX;
+      const dy = event.clientY - this.lastY;
+      this.offsetX += dx;
+      this.offsetY += dy;
+      this.lastX = event.clientX;
+      this.lastY = event.clientY;
+      this.redraw();
+      return;
+    }
+
     if (this.editMode) {
       this.handleEditModeMouseMove(event);
       return;
@@ -137,6 +146,11 @@ class DrawingBoard {
   }
 
   handleMouseUp() {
+    if (this.isPanning) {
+      this.canvas.style.cursor = "grab";
+      return;
+    }
+
     if (this.editMode) {
       if (this.isDragging || this.isResizing) {
         this.isDragging = false;
@@ -150,6 +164,11 @@ class DrawingBoard {
   }
 
   handleMouseLeave() {
+    if (this.isPanning) {
+      this.isPanning = false;
+      this.canvas.style.cursor = "default";
+    }
+
     if (this.isDragging || this.isResizing) {
       this.isDragging = false;
       this.isResizing = false;
@@ -162,8 +181,8 @@ class DrawingBoard {
 
   handleEditModeMouseDown(event) {
     const rect = this.canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    const x = (event.clientX - rect.left - this.offsetX) / this.zoom;
+    const y = (event.clientY - rect.top - this.offsetY) / this.zoom;
 
     if (this.selectedImage) {
       if (this.checkResizeHandles(x, y)) {
@@ -177,8 +196,8 @@ class DrawingBoard {
 
   handleEditModeMouseMove(event) {
     const rect = this.canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    const x = (event.clientX - rect.left - this.offsetX) / this.zoom;
+    const y = (event.clientY - rect.top - this.offsetY) / this.zoom;
 
     if (this.isDragging && this.selectedImage) {
       this.selectedImage.x = x - this.dragStartX;
@@ -191,8 +210,8 @@ class DrawingBoard {
 
   handleDoubleClick(event) {
     const rect = this.canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    const x = (event.clientX - rect.left - this.offsetX) / this.zoom;
+    const y = (event.clientY - rect.top - this.offsetY) / this.zoom;
 
     for (let i = this.draggableImages.length - 1; i >= 0; i--) {
       const img = this.draggableImages[i];
@@ -212,7 +231,27 @@ class DrawingBoard {
     this.redraw();
   }
 
-  handleImageDelete(event) {
+  handleWheel(e) {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    const rect = this.canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const pointX = (mouseX - this.offsetX) / this.zoom;
+    const pointY = (mouseY - this.offsetY) / this.zoom;
+
+    this.zoom *= delta;
+    this.zoom = Math.min(Math.max(0.1, this.zoom), 10);
+
+    this.offsetX = mouseX - pointX * this.zoom;
+    this.offsetY = mouseY - pointY * this.zoom;
+
+    this.updateZoomIndicator();
+    this.redraw();
+  }
+
+  handleKeyDown(event) {
     if ((event.key === "Delete" || event.key === "Backspace") && this.selectedImage) {
       const index = this.draggableImages.indexOf(this.selectedImage);
       if (index > -1) {
@@ -228,13 +267,29 @@ class DrawingBoard {
       this.selectedImage = null;
       this.redraw();
     }
+
+    if (event.code === "ControlLeft") {
+      this.canvas.style.cursor = "grab";
+      if (!this.isPanning) {
+        this.isPanning = true;
+        this.lastX = 0;
+        this.lastY = 0;
+      }
+    }
+  }
+
+  handleKeyUp(e) {
+    if (e.code === "ControlLeft") {
+      this.canvas.style.cursor = "default";
+      this.isPanning = false;
+    }
   }
 
   startDrawing(event) {
     this.isDrawing = true;
     const rect = this.canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    const x = (event.clientX - rect.left - this.offsetX) / this.zoom;
+    const y = (event.clientY - rect.top - this.offsetY) / this.zoom;
 
     this.startX = x;
     this.startY = y;
@@ -349,8 +404,8 @@ class DrawingBoard {
     if (!this.isDrawing) return;
 
     const rect = this.canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    const x = (event.clientX - rect.left - this.offsetX) / this.zoom;
+    const y = (event.clientY - rect.top - this.offsetY) / this.zoom;
 
     if (this.currentTool === "pencil") {
       this.currentPath.points.push({ x, y });
@@ -365,7 +420,12 @@ class DrawingBoard {
   redraw() {
     if (!this.ctx) return;
 
+    this.ctx.save();
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // apply zoom and pan transformations
+    this.ctx.translate(this.offsetX, this.offsetY);
+    this.ctx.scale(this.zoom, this.zoom);
 
     // timestamp for keeping track of the order of elements
     const sortedElements = [...this.elements].sort((a, b) => a.timestamp - b.timestamp);
@@ -398,6 +458,8 @@ class DrawingBoard {
     if (this.tempShape) {
       this.drawShape(this.tempShape);
     }
+
+    this.ctx.restore();
   }
 
   initializeColorPicker() {
@@ -715,8 +777,8 @@ class DrawingBoard {
           const img = new Image();
           img.onload = () => {
             const rect = this.canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
+            const x = (event.clientX - rect.left - this.offsetX) / this.zoom;
+            const y = (event.clientY - rect.top - this.offsetY) / this.zoom;
 
             const newImage = {
               type: "image",
@@ -748,10 +810,10 @@ class DrawingBoard {
 
   drawSelectionBox(img) {
     this.ctx.strokeStyle = "#0095ff";
-    this.ctx.lineWidth = 2;
+    this.ctx.lineWidth = 2 / this.zoom;
     this.ctx.strokeRect(img.x, img.y, img.width, img.height);
 
-    const handleSize = 8;
+    const handleSize = 8 / this.zoom;
     const handles = this.getResizeHandles(img, handleSize);
 
     handles.forEach((handle) => {
@@ -777,7 +839,7 @@ class DrawingBoard {
   checkResizeHandles(x, y) {
     if (!this.selectedImage) return false;
 
-    const handleSize = 8;
+    const handleSize = 8 / this.zoom;
     const handles = this.getResizeHandles(this.selectedImage, handleSize);
 
     for (let i = 0; i < handles.length; i++) {
@@ -816,8 +878,8 @@ class DrawingBoard {
 
   handleResize(event) {
     const rect = this.canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    const x = (event.clientX - rect.left - this.offsetX) / this.zoom;
+    const y = (event.clientY - rect.top - this.offsetY) / this.zoom;
 
     const dx = x - this.resizeStartX;
     const dy = y - this.resizeStartY;

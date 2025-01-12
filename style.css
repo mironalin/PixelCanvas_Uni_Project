@@ -85,6 +85,12 @@ body {
   align-items: center;
 }
 
+canvas {
+  touch-action: none;
+  transition: border 0.3s ease;
+  cursor: crosshair;
+}
+
 .white-outline {
   filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(288deg) brightness(102%) contrast(102%);
 }
@@ -314,4 +320,31 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.zoom-indicator {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background-color: var(--toolbar-bg);
+  border: 1px solid var(--toolbar-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+  color: var(--text-color);
+  z-index: 1000;
+}
+
+.keyboard-shortcuts {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--toolbar-bg);
+  border: 1px solid var(--toolbar-border);
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 14px;
+  color: var(--text-color);
+  z-index: 1000;
 }
