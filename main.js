@@ -55,6 +55,8 @@ class DrawingBoard {
     this.offsetX = 0;
     this.offsetY = 0;
 
+    this.fillEnabled = false;
+
     this.createDropzoneOverlay();
 
     this.landing = new LandingPage(() => {
@@ -287,12 +289,46 @@ class DrawingBoard {
     }
   }
 
+  isPointInElement(x, y, element) {
+    if (element.type === "image") {
+      return x >= element.x && x <= element.x + element.width && y >= element.y && y <= element.y + element.height;
+    } else if (element.type === "path") {
+      return element.points.some((point) => Math.abs(x - point.x) < 5 && Math.abs(y - point.y) < 5);
+    } else if (element.type === "shape") {
+      const bounds = this.getShapeBounds(element);
+      return x >= bounds.x && x <= bounds.x + bounds.width && y >= bounds.y && y <= bounds.y + bounds.height;
+    }
+    return false;
+  }
+
+  getShapeBounds(shape) {
+    const x = Math.min(shape.startX, shape.endX);
+    const y = Math.min(shape.startY, shape.endY);
+    const width = Math.abs(shape.endX - shape.startX);
+    const height = Math.abs(shape.endY - shape.startY);
+    return { x, y, width, height };
+  }
+
   startDrawing(event) {
-    this.isDrawing = true;
     const rect = this.canvas.getBoundingClientRect();
     const x = (event.clientX - rect.left - this.offsetX) / this.zoom;
     const y = (event.clientY - rect.top - this.offsetY) / this.zoom;
 
+    if (this.currentTool === "bucket") {
+      console.log("bucket");
+      for (let i = this.elements.length - 1; i >= 0; i--) {
+        const element = this.elements[i];
+        if (element.type === "shape" && this.isPointInElement(x, y, element)) {
+          element.fillEnabled = !element.fillEnabled;
+          this.redraw();
+          this.saveState();
+          return;
+        }
+      }
+      return;
+    }
+
+    this.isDrawing = true;
     this.startX = x;
     this.startY = y;
 
@@ -317,6 +353,7 @@ class DrawingBoard {
         startY: y,
         endX: x,
         endY: y,
+        fillEnabled: false,
         timestamp: Date.now(),
       };
     }
@@ -342,6 +379,7 @@ class DrawingBoard {
   drawShape(shape) {
     this.ctx.beginPath();
     this.ctx.strokeStyle = shape.color;
+    this.ctx.fillStyle = shape.color;
     this.ctx.lineWidth = shape.brushSize;
 
     switch (shape.tool) {
@@ -352,6 +390,9 @@ class DrawingBoard {
       case "rectangle":
         const width = shape.endX - shape.startX;
         const height = shape.endY - shape.startY;
+        if (shape.fillEnabled) {
+          this.ctx.fillRect(shape.startX, shape.startY, width, height);
+        }
         this.ctx.strokeRect(shape.startX, shape.startY, width, height);
         break;
       case "circle":
@@ -359,12 +400,20 @@ class DrawingBoard {
         const centerY = (shape.startY + shape.endY) / 2;
         const radius = Math.sqrt(Math.pow(shape.endX - shape.startX, 2) + Math.pow(shape.endY - shape.startY, 2)) / 2;
         this.ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        if (shape.fillEnabled) {
+          this.ctx.fill();
+        }
+        this.ctx.stroke();
         break;
       case "triangle":
         this.ctx.moveTo(shape.startX, shape.endY);
         this.ctx.lineTo((shape.startX + shape.endX) / 2, shape.startY);
         this.ctx.lineTo(shape.endX, shape.endY);
         this.ctx.closePath();
+        if (shape.fillEnabled) {
+          this.ctx.fill();
+        }
+        this.ctx.stroke();
         break;
       case "diamond":
         const midX = (shape.startX + shape.endX) / 2;
@@ -374,6 +423,10 @@ class DrawingBoard {
         this.ctx.lineTo(midX, shape.endY);
         this.ctx.lineTo(shape.startX, midY);
         this.ctx.closePath();
+        if (shape.fillEnabled) {
+          this.ctx.fill();
+        }
+        this.ctx.stroke();
         break;
       case "star":
         const outerRadius = Math.min(Math.abs(shape.endX - shape.startX), Math.abs(shape.endY - shape.startY)) / 2;
@@ -396,6 +449,10 @@ class DrawingBoard {
           }
         }
         this.ctx.closePath();
+        if (shape.fillEnabled) {
+          this.ctx.fill();
+        }
+        this.ctx.stroke();
         break;
     }
 
