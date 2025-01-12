@@ -282,3 +282,36 @@ body {
   content: "✏️";
   font-size: 1.25rem;
 }
+
+.dropzone-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(105, 101, 219, 0.1);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.dropzone-message {
+  background-color: var(--toolbar-bg);
+  border: 2px dashed #6965db;
+  border-radius: 12px;
+  padding: 20px 40px;
+  font-size: 1.5rem;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dropzone-message span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
