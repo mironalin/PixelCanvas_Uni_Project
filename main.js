@@ -2,11 +2,11 @@ class LandingPage {
   constructor(onStart) {
     this.landing = document.getElementById("landing");
     this.startButton = this.landing.querySelector(".start-drawing");
-    this.zoomControls = document.getElementById("zoom-controls");
+    this.hints = document.getElementById("hints");
 
     this.startButton.addEventListener("click", () => {
       this.landing.classList.add("hidden");
-      this.zoomControls.classList.add("visible");
+      this.hints.classList.add("visible");
       if (onStart) {
         onStart();
       }
@@ -482,11 +482,9 @@ class DrawingBoard {
     this.ctx.save();
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // apply zoom and pan transformations
     this.ctx.translate(this.offsetX, this.offsetY);
     this.ctx.scale(this.zoom, this.zoom);
 
-    // timestamp for keeping track of the order of elements
     const sortedElements = [...this.elements].sort((a, b) => a.timestamp - b.timestamp);
 
     // draw elements in order

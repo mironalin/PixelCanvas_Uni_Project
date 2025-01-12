@@ -322,10 +322,10 @@ canvas {
   gap: 10px;
 }
 
-.zoom-indicator {
+.drag-and-drop {
   position: fixed;
   bottom: 16px;
-  right: 16px;
+  left: 16px;
   background-color: var(--toolbar-bg);
   border: 1px solid var(--toolbar-border);
   padding: 4px 8px;
@@ -351,10 +351,24 @@ canvas {
   box-shadow: var(--shadow-color) 0px 2px 5px 0px, var(--shadow-color) 0px 1px 1px 0px;
 }
 
-#zoom-controls.hidden {
+.zoom-indicator {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background-color: var(--toolbar-bg);
+  border: 1px solid var(--toolbar-border);
+  padding: 4px 8px;
+  font-size: 14px;
+  color: var(--text-color);
+  z-index: 1000;
+  border-radius: 0.45rem;
+  box-shadow: var(--shadow-color) 0px 2px 5px 0px, var(--shadow-color) 0px 1px 1px 0px;
+}
+
+#hints.hidden {
   display: none;
 }
 
-#zoom-controls.visible {
+#hints.visible {
   display: block;
 }
