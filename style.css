@@ -328,11 +328,12 @@ canvas {
   right: 16px;
   background-color: var(--toolbar-bg);
   border: 1px solid var(--toolbar-border);
-  border-radius: 4px;
   padding: 4px 8px;
   font-size: 14px;
   color: var(--text-color);
   z-index: 1000;
+  border-radius: 0.45rem;
+  box-shadow: var(--shadow-color) 0px 2px 5px 0px, var(--shadow-color) 0px 1px 1px 0px;
 }
 
 .keyboard-shortcuts {
@@ -342,11 +343,12 @@ canvas {
   transform: translateX(-50%);
   background-color: var(--toolbar-bg);
   border: 1px solid var(--toolbar-border);
-  border-radius: 4px;
   padding: 4px 12px;
   font-size: 14px;
   color: var(--text-color);
   z-index: 1000;
+  border-radius: 0.45rem;
+  box-shadow: var(--shadow-color) 0px 2px 5px 0px, var(--shadow-color) 0px 1px 1px 0px;
 }
 
 #zoom-controls.hidden {

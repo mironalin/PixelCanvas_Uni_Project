@@ -159,7 +159,7 @@ class DrawingBoard {
       if (this.isDragging || this.isResizing) {
         this.isDragging = false;
         this.isResizing = false;
-        this.canvas.style.cursor = "default";
+        this.canvas.style.cursor = "crosshair";
         this.saveState();
       }
       return;
@@ -170,13 +170,13 @@ class DrawingBoard {
   handleMouseLeave() {
     if (this.isPanning) {
       this.isPanning = false;
-      this.canvas.style.cursor = "default";
+      this.canvas.style.cursor = "crosshair";
     }
 
     if (this.isDragging || this.isResizing) {
       this.isDragging = false;
       this.isResizing = false;
-      this.canvas.style.cursor = "default";
+      this.canvas.style.cursor = "crosshair";
       this.saveState();
     } else if (this.isDrawing) {
       this.handleMouseUp();
@@ -284,7 +284,7 @@ class DrawingBoard {
 
   handleKeyUp(e) {
     if (e.code === "ControlLeft") {
-      this.canvas.style.cursor = "default";
+      this.canvas.style.cursor = "crosshair";
       this.isPanning = false;
     }
   }
@@ -596,8 +596,8 @@ class DrawingBoard {
   }
 
   updateColorForTheme() {
-    const targetColor = this.isDarkMode ? "#ffffff" : "#000000";
-    if (this.color === (this.isDarkMode ? "#000000" : "#ffffff")) {
+    const targetColor = this.isDarkMode ? "#fdfbd4" : "#000000";
+    if (this.color === (this.isDarkMode ? "#000000" : "#fdfbd4")) {
       this.updateFromHexInput(targetColor);
       this.addToRecentColors(targetColor);
     }
